@@ -8,7 +8,7 @@
 .equ  BootRAM, 0xF108F85F
 
 .type vtable, %object
-.section .vector_table,"a",%progbits
+.section .vtable,"a",%progbits
 vtable:
   
   .word _estack
