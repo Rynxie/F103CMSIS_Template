@@ -40,21 +40,32 @@ LFLAGS += -T$(LSCRIPT)
 
 AS_SRC   = ./boot/startup.s
 AS_SRC   += ./boot/vectorTable.s
+
 C_SRC    = ./core/src/main.c
+
 INCLUDE  = -I./core/inc/
 INCLUDE  += -I./drivers/cmsis/inc/
-OBJS += $(addprefix $(BUILD_DIR),$(notdir $(AS_SRC:.s=.o)))
-OBJS += $(addprefix $(BUILD_DIR),$(notdir $(C_SRC:.c=.o)))
+
+OBJS += $(patsubst %.c,$(BUILD_DIR)%.o,$(C_SRC))
+OBJS += $(patsubst %.s,$(BUILD_DIR)%.o,$(AS_SRC))
 
 
 all: $(BUILD_DIR)$(TARGET).bin
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
-$(BUILD_DIR)%.o: ./boot/%.s Makefile | $(BUILD_DIR) 
+	@echo -e "$(BOLD_YELLOW)This files will be created : $(BOLD_GREEN)$(OBJS)$(RESET)"
+
+$(BUILD_DIR)%.o: %.s Makefile | $(BUILD_DIR)
+	@mkdir -p $(dir $@) 
+	@echo -e "$(BOLD_YELLOW)Compiling $(BOLD_GREEN)$<$(RESET)"
 	$(CC) -x assembler-with-cpp $(ASFLAGS) $< -o $@
-$(BUILD_DIR)%.o: $(C_SRC) Makefile | $(BUILD_DIR)  
+
+$(BUILD_DIR)%.o: %.c Makefile | $(BUILD_DIR)
+	@mkdir -p $(dir $@) 
+	@echo -e "$(BOLD_YELLOW)Compiling $(BOLD_GREEN)$<$(RESET)"
 	$(CC) -c $(CFLAGS) $(INCLUDE) $< -o $@
+
 $(BUILD_DIR)$(TARGET).elf: $(OBJS)
 	$(CC) $^ $(LFLAGS) -o $@
 $(BUILD_DIR)$(TARGET).bin: $(BUILD_DIR)$(TARGET).elf
