@@ -20,7 +20,7 @@ MEMORY
 SECTIONS
 {
   /* The vector table goes at the start of flash. */
-  .vtable:
+  .vtable :
   {
     . = ALIGN(4);
     KEEP (*(.vtable))
